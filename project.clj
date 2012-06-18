@@ -1,4 +1,4 @@
-(defproject shoreleave-browser "0.2.1"
+(defproject shoreleave/shoreleave-browser "0.2.1"
   :description "A smarter client-side with ClojureScript : Shoreleave's enhanced browser utilities"
   :url "http://github.com/shoreleave"
   :license {:name "Eclipse Public License - v 1.0"
