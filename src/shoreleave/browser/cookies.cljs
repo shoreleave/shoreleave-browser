@@ -1,7 +1,8 @@
 (ns shoreleave.browser.cookies
   "An idiomatic interface to cookies"
   (:require [goog.net.Cookies :as gCookies]
-            [goog.string :as gstr]))
+            [goog.string :as gstr]
+            [cljs.reader :as reader]))
 
 ;; Cookie support
 ;; --------------
@@ -31,7 +32,7 @@
     ([c k]
       (-lookup c k nil))
     ([c k not-found]
-      (gstr/urlDecode (.get c (name k) not-found))
+      (reader/read-string (gstr/urlDecode (.get c (name k) not-found)))
       #_(.get c (name k) not-found)))
 
   ISeqable
@@ -56,7 +57,7 @@
   (-assoc! [c k v & opts]
     (when-let [k (and (.isValidName c (name k)) (name k))]
       (let [{:keys [max-age path domain secure?]} (apply hash-map opts)]
-        (.set c k v max-age path domain secure?))))
+        (.set c k (pr-str v) max-age path domain secure?))))
 
   ITransientMap
   (-dissoc! [c k & opts]
