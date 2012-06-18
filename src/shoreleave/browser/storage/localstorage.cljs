@@ -1,5 +1,6 @@
 (ns shoreleave.browser.storage.localstorage
-  "An idiomatic interface to the browser's local storage")
+  "An idiomatic interface to the browser's local storage"
+  (:require [cljs.reader :as reader]))
 
 ;; Watchers
 ;; --------
@@ -33,7 +34,7 @@
     ([ls k]
       (-lookup ls k nil))
     ([ls k not-found]
-      (.getItem ls (name k) not-found)))
+      (reader/read-string (.getItem ls (name k) not-found))))
 
   ICounted
   (-count  [ls] (.-length ls))
@@ -47,7 +48,7 @@
 
   ITransientAssociative
   (-assoc! [ls k v]
-    (.setItem ls (name k) v))
+    (.setItem ls (name k) (pr-str v)))
 
   ITransientMap
   (-dissoc! [ls k]
