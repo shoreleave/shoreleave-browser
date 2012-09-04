@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>shoreleave-browser -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shoreleave-browser</h1><h2 class="project-version">0.2.1</h2><br /><p>A smarter client-side with ClojureScript : Shoreleave's enhanced browser utilities</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">shoreleave/shoreleave-core</td><td class="dotted"><hr /></td><td class="dep-version">0.2.1</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">vimclojure/server</td><td class="dotted"><hr /></td><td class="dep-version">2.3.3</td></tr><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shoreleave.browser.blob">shoreleave.browser.blob</a></li><li><a href="#shoreleave.browser.cookies">shoreleave.browser.cookies</a></li><li><a href="#shoreleave.browser.history">shoreleave.browser.history</a></li><li><a href="#shoreleave.browser.storage.localstorage">shoreleave.browser.storage.localstorage</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.blob" name="shoreleave.browser.blob"><h1 class="project-name">shoreleave.browser.blob</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to Blobs</p>
+</script><title>shoreleave/shoreleave-browser -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shoreleave/shoreleave-browser</h1><h2 class="project-version">0.2.2</h2><br /><p>A smarter client-side with ClojureScript : Shoreleave's enhanced browser utilities</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">shoreleave/shoreleave-core</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shoreleave.browser.blob">shoreleave.browser.blob</a></li><li><a href="#shoreleave.browser.cookies">shoreleave.browser.cookies</a></li><li><a href="#shoreleave.browser.history">shoreleave.browser.history</a></li><li><a href="#shoreleave.browser.storage.localstorage">shoreleave.browser.storage.localstorage</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.blob" name="shoreleave.browser.blob"><h1 class="project-name">shoreleave.browser.blob</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to Blobs</p>
 </td><td class="codes"><pre class="brush: clojure">(ns shoreleave.browser.blob)</pre></td></tr><tr><td class="docs"><h2>Blobs</h2>
 
 <p>HTML5 File API supports the creation of Blobs.</p>
@@ -3103,8 +3103,11 @@ could be backwards support.  Until the APIs settle, this will do.</p>
   (-lookup
     ([c k]
       (-lookup c k nil))
-    ([c k not-found]
-      (gstr/urlDecode (.get c (name k) not-found))
+    ([c k not-found] ;gstr/urlDecode
+      (let [v (.get c (name k) not-found)]
+        (if (string? v)
+          (gstr/urlDecode v)
+          v))
       #_(.get c (name k) not-found)))
 
   ISeqable
@@ -3235,7 +3238,11 @@ be functional.</p>
               title js/document.title}} state-map]
     (apply js/window.history.pushState (map clj-&gt;js [state title url]))
     (.dispatchEvent hist (goog.history.Event. url false))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.storage.localstorage" name="shoreleave.browser.storage.localstorage"><h1 class="project-name">shoreleave.browser.storage.localstorage</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to the browser's local storage</p>
-</td><td class="codes"><pre class="brush: clojure">(ns shoreleave.browser.storage.localstorage)</pre></td></tr><tr><td class="docs"><h2>Watchers</h2>
+</td><td class="codes"><pre class="brush: clojure">(ns shoreleave.browser.storage.localstorage
+  (:require [cljs.reader :as reader]
+            ;[goog.storage.mechanism.HTML5LocalStorage :as hml5ls]))</pre></td></tr><tr><td class="docs"><p><em>THIS IS CURRENTLY DISABLED</em>
+See the code directly if you're curious</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><h2>Watchers</h2>
 
 <p>In most applications, you want to trigger actions when data is changed.
 To support this, Shoreleave's local storage use IWatchable and maintains
@@ -3245,7 +3252,7 @@ the watchers in an atom.</p>
 
 <p>For general information on localStorage, please see <a href="https://developer.mozilla.org/en/DOM/Storage#localStorage">Mozilla's docs</a></p>
 
-<p>Shoreleave's localStorage support is built directly against the <code>js/window</code></p>
+<p>Shoreleave's localStorage support is built against Closure's <a href="http://closure-library.googlecode.com/svn/docs/class_goog_storage_mechanism_HTML5LocalStorage.html">interface</a></p>
 
 <p>The extension supports the following calls:</p>
 
@@ -3257,57 +3264,5 @@ the watchers in an atom.</p>
 <li><code>(dissoc! local-storage :saved-results)</code> - remove an item</li>
 <li><code>(empty! local-storage)</code> - Clear out the localStorage store</li>
 </ul>
-</td><td class="codes"></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(extend-type js/localStorage
-  
-  ILookup
-  (-lookup
-    ([ls k]
-      (-lookup ls k nil))
-    ([ls k not-found]
-      (.getItem ls (name k) not-found)))
-
-  ICounted
-  (-count  [ls] (.-length ls))
-
-  IFn
-  (-invoke
-    ([ls k]
-      (-lookup ls k))
-    ([ls k not-found]
-      (-lookup ls k not-found))) 
-
-  ITransientAssociative
-  (-assoc! [ls k v]
-    (.setItem ls (name k) v))
-
-  ITransientMap
-  (-dissoc! [ls k]
-    (.removeItem ls (name k)))
-
-  IWatchable
-  (-notify-watches [ls oldval newval]
-    (doseq  [[key f] ls-watchers]
-      (f key ls oldval newval)))
-  (-add-watch [ls key f]
-    (swap! ls-watchers assoc key f))
-  (-remove-watch [ls key]
-    (swap! ls-watchers dissoc key))
-
-  ;IPrintable
-  ;(-pr-seq  [c opts]
-   ; #_(let  [pr-pair  (fn  [keyval]  (pr-sequential pr-seq &quot;&quot; &quot; &quot; &quot;&quot; opts keyval))]
-   ;   (pr-sequential pr-pair &quot;{&quot; &quot;, &quot; &quot;}&quot; opts c))
-   ; (-pr-seq (-persistent! c) opts))
-)</pre></td></tr><tr><td class="docs"><p>Clear the localStorage</p>
-</td><td class="codes"><pre class="brush: clojure">(defn empty!
-  [ls]
-  (.clear ls))</pre></td></tr><tr><td class="docs"><p>Get the browser's localStorage</p>
-
-<h3>Usage</h3>
-
-<p>You'll typically do something like: <code>(def local-storage (localstorage/storage)</code></p>
-</td><td class="codes"><pre class="brush: clojure">(defn storage
-  []
-  (.-localStorage js/window))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
