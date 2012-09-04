@@ -1,5 +1,8 @@
 (ns shoreleave.browser.storage.localstorage
-  "An idiomatic interface to the browser's local storage")
+  "An idiomatic interface to the browser's local storage"
+  (:require [cljs.reader :as reader]
+            ;[goog.storage.mechanism.HTML5LocalStorage :as hml5ls]
+            ))
 
 ;; Watchers
 ;; --------
@@ -15,7 +18,7 @@
 ;;
 ;; For general information on localStorage, please see [Mozilla's docs](https://developer.mozilla.org/en/DOM/Storage#localStorage)
 ;;
-;; Shoreleave's localStorage support is built directly against the `js/window`
+;; Shoreleave's localStorage support is built against Closure's [interface](http://closure-library.googlecode.com/svn/docs/class_goog_storage_mechanism_HTML5LocalStorage.html)
 ;;
 ;; The extension supports the following calls:
 ;;
@@ -26,17 +29,17 @@
 ;;  * `(dissoc! local-storage :saved-results)` - remove an item
 ;;  * `(empty! local-storage)` - Clear out the localStorage store
 
-(extend-type js/localStorage
+#_(extend-type goog.storage.mechanism.HTML5LocalStorage
   
   ILookup
   (-lookup
     ([ls k]
       (-lookup ls k nil))
     ([ls k not-found]
-      (.getItem ls (name k) not-found)))
+      (reader/read-string (.get ls (name k) not-found))))
 
   ICounted
-  (-count  [ls] (.-length ls))
+  (-count  [ls] (.getCount ls))
 
   IFn
   (-invoke
@@ -47,11 +50,11 @@
 
   ITransientAssociative
   (-assoc! [ls k v]
-    (.setItem ls (name k) v))
+    (.set ls (name k) (pr-str v)))
 
   ITransientMap
   (-dissoc! [ls k]
-    (.removeItem ls (name k)))
+    (.remove ls (name k)))
 
   IWatchable
   (-notify-watches [ls oldval newval]
@@ -69,15 +72,15 @@
    ; (-pr-seq (-persistent! c) opts))
 )
 
-(defn empty!
+#_(defn empty!
   "Clear the localStorage"
   [ls]
   (.clear ls))
 
 ;; ###Usage
 ;; You'll typically do something like: `(def local-storage (localstorage/storage)`
-(defn storage
+#_(defn storage
   "Get the browser's localStorage"
   []
-  (.-localStorage js/window))
+  (goog.storage.mechanism.HTML5LocalStorage.))
 

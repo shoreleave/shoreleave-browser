@@ -23,6 +23,7 @@ The `browser` namespace offers idiomated interfaces to client-side facilities:
  * Storage (Closure, Session Storage, and Local Storage)
  * Blob, BlobBuilder and blobbing functions
 
+Please see the Marginalia docs for [more information](http://shoreleave.github.com/shoreleave-browser/).
 
 Plays well with others
 ----------------------

@@ -30,8 +30,11 @@
   (-lookup
     ([c k]
       (-lookup c k nil))
-    ([c k not-found]
-      (gstr/urlDecode (.get c (name k) not-found))
+    ([c k not-found] ;gstr/urlDecode
+      (let [v (.get c (name k) not-found)]
+        (if (string? v)
+          (gstr/urlDecode v)
+          v))
       #_(.get c (name k) not-found)))
 
   ISeqable
