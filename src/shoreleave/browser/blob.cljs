@@ -29,21 +29,26 @@
   ([w]
    (or (.-BlobBuilder w) (.-WebKitBlobBuilder w) (.-MozBlobBuilder w))))
 
-;; Make sure we have a top-level BlobBuiler - this is for protocol sake
-(set! (.-BlobBuilder js/window) (blobber))
 
 (defn blob-builder
   "Return a BlobBuilder JavaScript object"
   []
   (js/window.BlobBuilder.))
 
+(defn enable-blobbuilder!
+  "Since BlobBuilder isn't fully supported, it needs to be actived manually
+  This will enable BlobBuilder as a window-level property and CLJSify the interface"
+  []
+  ;; Make sure we have a top-level BlobBuiler - this is for protocol sake 
+  (do
+    (set! (.-BlobBuilder js/window) (blobber))
+    (extend-type js/window.BlobBuilder
 
-(extend-type js/window.BlobBuilder
-  
-  ITransientCollection
-  ;(-persistent! [blobber] (as-vector blobber))
-  (-conj! [blobber str-piece]
-    (.append blobber str-piece)))
+      ITransientCollection
+      ;(-persistent! [blobber] (as-vector blobber))
+      (-conj! [blobber str-piece]
+        (.append blobber str-piece)))
+    true))
 
 (defn blob
   "Build the blobber's contents into a Blob and return it"
