@@ -1,8 +1,7 @@
 (ns shoreleave.browser.storage.localstorage
   "An idiomatic interface to the browser's local storage"
   (:require [cljs.reader :as reader]
-            ;[goog.storage.mechanism.HTML5LocalStorage :as hml5ls]
-            ))
+            [goog.storage.mechanism.HTML5LocalStorage :as hml5ls]))
 
 ;; Watchers
 ;; --------
@@ -29,7 +28,7 @@
 ;;  * `(dissoc! local-storage :saved-results)` - remove an item
 ;;  * `(empty! local-storage)` - Clear out the localStorage store
 
-#_(extend-type goog.storage.mechanism.HTML5LocalStorage
+(extend-type goog.storage.mechanism.HTML5LocalStorage
   
   ILookup
   (-lookup
@@ -72,14 +71,14 @@
    ; (-pr-seq (-persistent! c) opts))
 )
 
-#_(defn empty!
+(defn empty!
   "Clear the localStorage"
   [ls]
   (.clear ls))
 
 ;; ###Usage
 ;; You'll typically do something like: `(def local-storage (localstorage/storage)`
-#_(defn storage
+(defn storage
   "Get the browser's localStorage"
   []
   (goog.storage.mechanism.HTML5LocalStorage.))
