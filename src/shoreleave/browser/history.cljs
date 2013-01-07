@@ -3,8 +3,7 @@
   (:require [goog.events :as gevents]
             [goog.History :as ghistory]
             [goog.history.EventType :as history-event]
-            [goog.history.Html5History :as history5])
-  (:use [shoreleave.common :only [clj->js]]))
+            [goog.history.Html5History :as history5]))
 
 ;; This is the history object - the interface the browser's history
 ;;
