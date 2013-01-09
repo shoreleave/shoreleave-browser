@@ -1,7 +1,7 @@
 (ns shoreleave.browser.storage.localstorage
   "An idiomatic interface to the browser's local storage"
   (:require [cljs.reader :as reader]
-            [goog.storage.mechanism.HTML5LocalStorage :as hml5ls]))
+            [goog.storage.mechanism.HTML5LocalStorage :as html5ls]))
 
 ;; Watchers
 ;; --------
@@ -10,7 +10,7 @@
 ;; To support this, Shoreleave's local storage use IWatchable and maintains
 ;; the watchers in an atom.
 
-(def ls-watchers {})
+(def ls-watchers (atom {}))
 
 ;; `localStorage` support
 ;; ----------------------
@@ -49,15 +49,20 @@
 
   ITransientAssociative
   (-assoc! [ls k v]
-    (.set ls (name k) (pr-str v)))
+    (let [old-val (-lookup ls k)]
+      (.set ls (name k) (pr-str v))
+      (-notify-watches ls {k old-val} {k v})
+      ls))
 
   ITransientMap
   (-dissoc! [ls k]
-    (.remove ls (name k)))
+    (do
+      (.remove ls (name k))
+      ls))
 
   IWatchable
   (-notify-watches [ls oldval newval]
-    (doseq  [[key f] ls-watchers]
+    (doseq  [[key f] @ls-watchers]
       (f key ls oldval newval)))
   (-add-watch [ls key f]
     (swap! ls-watchers assoc key f))
