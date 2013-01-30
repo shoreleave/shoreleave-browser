@@ -28,17 +28,17 @@
   "Build a new Blob object, but don't muck with the args.
   This is for low-level interop stuff - when needed."
   ([file-parts]
-   (Blob. file-parts))
+   (js/Blob. file-parts))
   ([file-parts prop-bag]
-   (Blob. file-parts prop-bag)))
+   (js/Blob. file-parts prop-bag)))
 
 (defn blob
   "Build the file-contents into a Blob and return it.
   Optionally set the content-type via a string"
   ([file-parts]
-   (Blob. (clj->js file-parts)))
+   (js/Blob. (clj->js file-parts)))
   ([file-parts content-type-str]
-   (Blob. (clj->js file-parts) (js-obj "type" content-type-str))))
+   (js/Blob. (clj->js file-parts) (js-obj "type" content-type-str))))
 
 (defn object-url!
   "Create a unique object URL (ala `blob://...`) for a Blob object,
