@@ -73,11 +73,14 @@
   (-contains-key? [c k]
     (.containsKey c (name k)))
 
-  IPrintable
-  (-pr-seq  [c opts]
-    #_(let  [pr-pair  (fn  [keyval]  (pr-sequential pr-seq "" " " "" opts keyval))]
-      (pr-sequential pr-pair "{" ", " "}" opts c))
-    (-pr-seq (-persistent! c) opts))
+  ;IPrintable
+  ;(-pr-seq  [c opts]
+  ;  #_(let  [pr-pair  (fn  [keyval]  (pr-sequential pr-seq "" " " "" opts keyval))]
+  ;    (pr-sequential pr-pair "{" ", " "}" opts c))
+  ;  (-pr-seq (-persistent! c) opts))
+  IPrintWithWriter
+  (-pr-writer [c writer opts]
+    (-write writer (-persistent! c)))
 
   ;; TODO: using the persistent version here might be a bad idea
   IHash
