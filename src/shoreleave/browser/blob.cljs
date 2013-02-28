@@ -11,49 +11,47 @@
 ;;
 ;; This is useful if you're making an app that wants to use on-demand assets,
 ;; or you need to build something like embedded web workers.
+;; It also comes in handy if you want to build dynamic content on the fly,
+;; like streaming images.
 ;;
-;; *THESE HTML5 API SPECS ARE STILL CHANGING*
+;; The [Blob API](https://developer.mozilla.org/en-US/docs/DOM/Blob) is now a stable spec in HTML5.
 ;;
-;; The BlobBuilder API has been deprecated in favor of Blob objects, but there
-;; could be backwards support.  Until the APIs settle, this will do.
-;;
-;; The Blobber object (`js/window.BlobBuilder`) supports the following protocol calls:
-;;
-;;  * `(conj! ...)` - add more text to the blob-in-progress
+;; To create blobs, you pass a vector of file contents (or parts) to `(blob ...)`
+;; Optionally, you can set the content-type of the blob by passing in the content-type string.
+;; For example, "text\/xml"
 
-(defn- blobber
-  "Define a `window` level property for BlobBuilder, that removes Browser
-  specific names"
-  ([]
-   (blobber js/window))
-  ([w]
-   (or (.-BlobBuilder w) (.-WebKitBlobBuilder w) (.-MozBlobBuilder w))))
-
-;; Make sure we have a top-level BlobBuiler - this is for protocol sake
-(set! (.-BlobBuilder js/window) (blobber))
-
-(defn blob-builder
-  "Return a BlobBuilder JavaScript object"
+(defn- window-url-prop
   []
-  (js/window.BlobBuilder.))
+  (or (.-URL js/window) (.-webkitURL js/window)))
 
-
-(extend-type js/window.BlobBuilder
-  
-  ITransientCollection
-  ;(-persistent! [blobber] (as-vector blobber))
-  (-conj! [blobber str-piece]
-    (.append blobber str-piece)))
+(defn raw-blob
+  "Build a new Blob object, but don't muck with the args.
+  This is for low-level interop stuff - when needed."
+  ([file-parts]
+   (js/Blob. file-parts))
+  ([file-parts prop-bag]
+   (js/Blob. file-parts prop-bag)))
 
 (defn blob
-  "Build the blobber's contents into a Blob and return it"
-  [blobber]
-  (.getBlob blobber))
+  "Build the file-contents into a Blob and return it.
+  Optionally set the content-type via a string"
+  ([file-parts]
+   (js/Blob. (clj->js file-parts)))
+  ([file-parts content-type-str]
+   (js/Blob. (clj->js file-parts) (js-obj "type" content-type-str))))
 
 (defn object-url!
   "Create a unique object URL (ala `blob://...`) for a Blob object,
   as returned from `(blob ...)`"
   [file-or-blob]
-  (let [url (or (.-URL js/window) (.-webkitURL js/window))]
-    (.createObjectURL url file-or-blob)))
+  (let [url (window-url-prop)]
+    (when url
+      (.createObjectURL url file-or-blob))))
+
+(defn revoke-object-url!
+  ""
+  [obj-url]
+  (let [url (window-url-prop)]
+    (when url
+      (.revokeObjectURL url obj-url))))
 
