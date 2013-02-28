@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>shoreleave/shoreleave-browser -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shoreleave/shoreleave-browser</h1><h2 class="project-version">0.2.2</h2><br /><p>A smarter client-side with ClojureScript : Shoreleave's enhanced browser utilities</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">shoreleave/shoreleave-core</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shoreleave.browser.blob">shoreleave.browser.blob</a></li><li><a href="#shoreleave.browser.cookies">shoreleave.browser.cookies</a></li><li><a href="#shoreleave.browser.history">shoreleave.browser.history</a></li><li><a href="#shoreleave.browser.storage.localstorage">shoreleave.browser.storage.localstorage</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.blob" name="shoreleave.browser.blob"><h1 class="project-name">shoreleave.browser.blob</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to Blobs</p>
+</script><title>shoreleave/shoreleave-browser -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">shoreleave/shoreleave-browser</h1><h2 class="project-version">0.3.0</h2><br /><p>A smarter client-side with ClojureScript : Shoreleave's enhanced browser utilities</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">shoreleave/shoreleave-core</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#shoreleave.browser.blob">shoreleave.browser.blob</a></li><li><a href="#shoreleave.browser.cookies">shoreleave.browser.cookies</a></li><li><a href="#shoreleave.browser.history">shoreleave.browser.history</a></li><li><a href="#shoreleave.browser.storage.localstorage">shoreleave.browser.storage.localstorage</a></li><li><a href="#shoreleave.browser.storage.sessionstorage">shoreleave.browser.storage.sessionstorage</a></li><li><a href="#shoreleave.browser.storage.webstorage">shoreleave.browser.storage.webstorage</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.blob" name="shoreleave.browser.blob"><h1 class="project-name">shoreleave.browser.blob</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to Blobs</p>
 </td><td class="codes"><pre class="brush: clojure">(ns shoreleave.browser.blob)</pre></td></tr><tr><td class="docs"><h2>Blobs</h2>
 
 <p>HTML5 File API supports the creation of Blobs.</p>
@@ -3038,43 +3038,42 @@ net.brehaut.ClojureTools = (function (SH) {
 objects, that get their own unique URL wuth a <code>blob://...</code> schema.</p>
 
 <p>This is useful if you're making an app that wants to use on-demand assets,
-or you need to build something like embedded web workers.</p>
+or you need to build something like embedded web workers.
+It also comes in handy if you want to build dynamic content on the fly,
+like streaming images.</p>
 
-<p><em>THESE HTML5 API SPECS ARE STILL CHANGING</em></p>
+<p>The <a href="https://developer.mozilla.org/en-US/docs/DOM/Blob">Blob API</a> is now a stable spec in HTML5.</p>
 
-<p>The BlobBuilder API has been deprecated in favor of Blob objects, but there
-could be backwards support.  Until the APIs settle, this will do.</p>
-
-<p>The Blobber object (<code>js/window.BlobBuilder</code>) supports the following protocol calls:</p>
-
-<ul>
-<li><code>(conj! ...)</code> - add more text to the blob-in-progress</li>
-</ul>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>Define a <code>window</code> level property for BlobBuilder, that removes Browser
-  specific names</p>
-</td><td class="codes"><pre class="brush: clojure">(defn- blobber
-  ([]
-   (blobber js/window))
-  ([w]
-   (or (.-BlobBuilder w) (.-WebKitBlobBuilder w) (.-MozBlobBuilder w))))</pre></td></tr><tr><td class="docs"><p>Make sure we have a top-level BlobBuiler - this is for protocol sake</p>
-</td><td class="codes"><pre class="brush: clojure">(set! (.-BlobBuilder js/window) (blobber))</pre></td></tr><tr><td class="docs"><p>Return a BlobBuilder JavaScript object</p>
-</td><td class="codes"><pre class="brush: clojure">(defn blob-builder
+<p>To create blobs, you pass a vector of file contents (or parts) to <code>(blob ...)</code>
+Optionally, you can set the content-type of the blob by passing in the content-type string.
+For example, "text\/xml"</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn- window-url-prop
   []
-  (js/window.BlobBuilder.))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(extend-type js/window.BlobBuilder
-  
-  ITransientCollection
-  ;(-persistent! [blobber] (as-vector blobber))
-  (-conj! [blobber str-piece]
-    (.append blobber str-piece)))</pre></td></tr><tr><td class="docs"><p>Build the blobber's contents into a Blob and return it</p>
+  (or (.-URL js/window) (.-webkitURL js/window)))</pre></td></tr><tr><td class="docs"><p>Build a new Blob object, but don't muck with the args.
+  This is for low-level interop stuff - when needed.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn raw-blob
+  ([file-parts]
+   (js/Blob. file-parts))
+  ([file-parts prop-bag]
+   (js/Blob. file-parts prop-bag)))</pre></td></tr><tr><td class="docs"><p>Build the file-contents into a Blob and return it.
+  Optionally set the content-type via a string</p>
 </td><td class="codes"><pre class="brush: clojure">(defn blob
-  [blobber]
-  (.getBlob blobber))</pre></td></tr><tr><td class="docs"><p>Create a unique object URL (ala <code>blob://...</code>) for a Blob object,
+  ([file-parts]
+   (js/Blob. (clj-&gt;js file-parts)))
+  ([file-parts content-type-str]
+   (js/Blob. (clj-&gt;js file-parts) (js-obj &quot;type&quot; content-type-str))))</pre></td></tr><tr><td class="docs"><p>Create a unique object URL (ala <code>blob://...</code>) for a Blob object,
   as returned from <code>(blob ...)</code></p>
 </td><td class="codes"><pre class="brush: clojure">(defn object-url!
   [file-or-blob]
-  (let [url (or (.-URL js/window) (.-webkitURL js/window))]
-    (.createObjectURL url file-or-blob)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.cookies" name="shoreleave.browser.cookies"><h1 class="project-name">shoreleave.browser.cookies</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to cookies</p>
+  (let [url (window-url-prop)]
+    (when url
+      (.createObjectURL url file-or-blob))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn revoke-object-url!
+  [obj-url]
+  (let [url (window-url-prop)]
+    (when url
+      (.revokeObjectURL url obj-url))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.cookies" name="shoreleave.browser.cookies"><h1 class="project-name">shoreleave.browser.cookies</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to cookies</p>
 </td><td class="codes"><pre class="brush: clojure">(ns shoreleave.browser.cookies
   (:require [goog.net.Cookies :as gCookies]
             [goog.string :as gstr]))</pre></td></tr><tr><td class="docs"><h2>Cookie support</h2>
@@ -3146,11 +3145,14 @@ could be backwards support.  Until the APIs settle, this will do.</p>
   (-contains-key? [c k]
     (.containsKey c (name k)))
 
-  IPrintable
-  (-pr-seq  [c opts]
-    #_(let  [pr-pair  (fn  [keyval]  (pr-sequential pr-seq &quot;&quot; &quot; &quot; &quot;&quot; opts keyval))]
-      (pr-sequential pr-pair &quot;{&quot; &quot;, &quot; &quot;}&quot; opts c))
-    (-pr-seq (-persistent! c) opts))
+  ;IPrintable
+  ;(-pr-seq  [c opts]
+  ;  #_(let  [pr-pair  (fn  [keyval]  (pr-sequential pr-seq &quot;&quot; &quot; &quot; &quot;&quot; opts keyval))]
+  ;    (pr-sequential pr-pair &quot;{&quot; &quot;, &quot; &quot;}&quot; opts c))
+  ;  (-pr-seq (-persistent! c) opts))
+  IPrintWithWriter
+  (-pr-writer [c writer opts]
+    (-write writer (-persistent! c)))
 
   ;; TODO: using the persistent version here might be a bad idea
   IHash
@@ -3173,8 +3175,7 @@ could be backwards support.  Until the APIs settle, this will do.</p>
   (:require [goog.events :as gevents]
             [goog.History :as ghistory]
             [goog.history.EventType :as history-event]
-            [goog.history.Html5History :as history5])
-  (:use [shoreleave.common :only [clj-&gt;js]]))</pre></td></tr><tr><td class="docs"><p>This is the history object - the interface the browser's history</p>
+            [goog.history.Html5History :as history5]))</pre></td></tr><tr><td class="docs"><p>This is the history object - the interface the browser's history</p>
 
 <p>You can initialize your own history object, but you're encouraged to
 us the one provided</p>
@@ -3189,11 +3190,11 @@ to the browsers history, allowing you to go backwards and
 forwards in that history</p>
 
 <p>History events are packaged up as a map with the keys:
-<code>: token :type :navigation?</code></p>
+<code>:token :type :navigation?</code></p>
 
 <p><code>:token</code> is the location URL associated with this point in history.
 <code>:type</code> is the type of history event that was captured. You can ignore this.
-<code>navigation?</code> is a boolean, True if the event was initiated by a browser,
+<code>:navigation?</code> is a boolean, True if the event was initiated by a browser,
 or false otherwise</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Add a function to be called when a navigation event happens.
   The function should accept a single map, with keys :token, :type, :navigation?</p>
@@ -3240,15 +3241,14 @@ be functional.</p>
     (.dispatchEvent hist (goog.history.Event. url false))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.storage.localstorage" name="shoreleave.browser.storage.localstorage"><h1 class="project-name">shoreleave.browser.storage.localstorage</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to the browser's local storage</p>
 </td><td class="codes"><pre class="brush: clojure">(ns shoreleave.browser.storage.localstorage
   (:require [cljs.reader :as reader]
-            ;[goog.storage.mechanism.HTML5LocalStorage :as hml5ls]))</pre></td></tr><tr><td class="docs"><p><em>THIS IS CURRENTLY DISABLED</em>
-See the code directly if you're curious</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><h2>Watchers</h2>
+            [goog.storage.mechanism.HTML5LocalStorage :as html5ls]
+            [shoreleave.browser.storage.webstorage]))</pre></td></tr><tr><td class="docs"><h2>Watchers</h2>
 
 <p>In most applications, you want to trigger actions when data is changed.
 To support this, Shoreleave's local storage use IWatchable and maintains
 the watchers in an atom.</p>
 </td><td class="codes"></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def ls-watchers {})</pre></td></tr><tr><td class="docs"><h2>`localStorage` support</h2>
+</td><td class="codes"><pre class="brush: clojure">(def ls-watchers (atom {}))</pre></td></tr><tr><td class="docs"><h2>`localStorage` support</h2>
 
 <p>For general information on localStorage, please see <a href="https://developer.mozilla.org/en/DOM/Storage#localStorage">Mozilla's docs</a></p>
 
@@ -3264,5 +3264,174 @@ the watchers in an atom.</p>
 <li><code>(dissoc! local-storage :saved-results)</code> - remove an item</li>
 <li><code>(empty! local-storage)</code> - Clear out the localStorage store</li>
 </ul>
-</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+
+<h2>Using localStorage in Pub/Sub</h2>
+
+<p>The apprpriate IWatchable support is attached to Google's HTML5LocalStorage
+to allow it to participate in Shoreleave's pub/sub system</p>
+
+<p>To enable it, you need to <code>(publishable/include-localstorage!)</code> in the file
+where you setup and wire together your bus and publishables.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(extend-type goog.storage.mechanism.HTML5LocalStorage
+
+  IWatchable
+  (-notify-watches [ls oldval newval]
+    (doseq  [[key f] @ls-watchers]
+      (f key ls oldval newval)))
+  (-add-watch [ls key f]
+    (swap! ls-watchers assoc key f))
+  (-remove-watch [ls key]
+    (swap! ls-watchers dissoc key)))</pre></td></tr><tr><td class="docs"><p>Get the browser's localStorage</p>
+
+<h3>Usage</h3>
+
+<p>You'll typically do something like: <code>(def local-storage (localstorage/storage)</code></p>
+</td><td class="codes"><pre class="brush: clojure">(defn storage
+  []
+  (goog.storage.mechanism.HTML5LocalStorage.))</pre></td></tr><tr><td class="docs"><p>Much like how you can easily get "cookies/cookies" you can get "localstorage/localstorage"</p>
+</td><td class="codes"><pre class="brush: clojure">(def localstorage (storage))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.storage.sessionstorage" name="shoreleave.browser.storage.sessionstorage"><h1 class="project-name">shoreleave.browser.storage.sessionstorage</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to the browser's session storage</p>
+</td><td class="codes"><pre class="brush: clojure">(ns shoreleave.browser.storage.sessionstorage
+  (:require [cljs.reader :as reader]
+            [goog.storage.mechanism.HTML5SessionStorage :as html5ss]
+            [shoreleave.browser.storage.webstorage]))</pre></td></tr><tr><td class="docs"><h2>Watchers</h2>
+
+<p>In most applications, you want to trigger actions when data is changed.
+To support this, Shoreleave's session storage use IWatchable and maintains
+the watchers in an atom.  This is identical to techniques used in local storage.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def ss-watchers (atom {}))</pre></td></tr><tr><td class="docs"><h2>`sessionStorage` support</h2>
+
+<p>For general information on sessionStorage, please see <a href="https://developer.mozilla.org/en/DOM/Storage#sessionStorage">Mozilla's docs</a></p>
+
+<p>Shoreleave's sessionStorage support is built against Closure's <a href="http://closure-library.googlecode.com/svn/docs/class_goog_storage_mechanism_HTML5SessionStorage.html">interface</a></p>
+
+<p>The extension supports the following calls:</p>
+
+<ul>
+<li>map-style lookup - <code>(:search-results session-storage "default value")</code></li>
+<li><code>get</code> lookups</li>
+<li><code>(count session-storage)</code> - the number of things/keys stored</li>
+<li><code>(assoc! session-storage :new-key "saved")</code> - update or add an item</li>
+<li><code>(dissoc! session-storage :saved-results)</code> - remove an item</li>
+<li><code>(empty! session-storage)</code> - Clear out the localStorage store</li>
+</ul>
+
+<h2>Using sessionStorage in Pub/Sub</h2>
+
+<p>The apprpriate IWatchable support is attached to Google's HTML5SessionStorage
+to allow it to participate in Shoreleave's pub/sub system</p>
+
+<p>To enable it, you need to <code>(publishable/include-sessionstorage!)</code> in the file
+where you setup and wire together your bus and publishables.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(extend-type goog.storage.mechanism.HTML5SessionStorage
+
+  IWatchable
+  (-notify-watches [ss oldval newval]
+    (doseq  [[key f] @ss-watchers]
+      (f key ss oldval newval)))
+  (-add-watch [ss key f]
+    (swap! ss-watchers assoc key f))
+  (-remove-watch [ss key]
+    (swap! ss-watchers dissoc key)))</pre></td></tr><tr><td class="docs"><p>Get the browser's sessionStorage</p>
+
+<h3>Usage</h3>
+
+<p>You'll typically do something like: <code>(def session-storage (sessionstorage/storage)</code></p>
+</td><td class="codes"><pre class="brush: clojure">(defn storage
+  []
+  (goog.storage.mechanism.HTML5SessionStorage.))</pre></td></tr><tr><td class="docs"><p>Much like how you can easily get "cookies/cookies" you can get "sessionstorage/sessionstorage"</p>
+</td><td class="codes"><pre class="brush: clojure">(def sessionstorage (storage))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#shoreleave.browser.storage.webstorage" name="shoreleave.browser.storage.webstorage"><h1 class="project-name">shoreleave.browser.storage.webstorage</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>An idiomatic interface to the browser's storage mechanisms (local and sessions)</p>
+</td><td class="codes"><pre class="brush: clojure">(ns shoreleave.browser.storage.webstorage
+  (:require [cljs.reader :as reader]
+            [goog.storage.mechanism.HTML5WebStorage :as html5webstorage]
+            [goog.iter :as g-iter]))</pre></td></tr><tr><td class="docs"><p>Google Closure attaches a common prototype to all browser storage systems called, <code>WebStorage</code>.
+Shoreleave extends this type, to extend ClojureScript functionality/interop to all browsers storages.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><h2>WebStorage support</h2>
+
+<p>For general information on localStorage, please see the docs in <code>localstorage.cljs</code>
+For general information on sessionStorage, please see the docs in <code>sessionstorage.cljs</code></p>
+
+<p>Shoreleave's generic storage support is built against Closure's <a href="http://closure-library.googlecode.com/svn/docs/class_goog_storage_mechanism_HTML5WebStorage.html">interface</a></p>
+
+<p>The extension supports the following calls:</p>
+
+<ul>
+<li>map-style lookup - <code>(:search-results storage "default value")</code></li>
+<li><code>get</code> lookups</li>
+<li><code>(count storage)</code> - the number of things/keys stored</li>
+<li><code>(assoc! storage :new-key "saved")</code> - update or add an item</li>
+<li><code>(dissoc! storage :saved-results)</code> - remove an item</li>
+<li><code>(empty! storage)</code> - Clear out the localStorage store</li>
+</ul>
+
+<h2>Using storage in Pub/Sub</h2>
+
+<p>There is PubSub support for the specific storage types.
+Please see the details in those files.
+You'll need to require them directly to get support.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn storage-keys [ls]
+  (g-iter/toArray (.__iterator__ ls true)))
+(defn storage-values [ls]
+  (g-iter/toArray (.__iterator__ ls false)))
+(defn as-hash-map
+  ([storage]
+   (zipmap (storage-keys storage) (storage-values storage))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(extend-type goog.storage.mechanism.HTML5WebStorage
+  
+  ILookup
+  (-lookup
+    ([ls k]
+      (-lookup ls k nil))
+    ([ls k not-found]
+      (let [read-value (if-let [v (not-empty (.get ls (name k)))]
+                        v
+                        (pr-str not-found))]
+        (reader/read-string read-value))))
+
+  ISeqable
+  (-seq [ls]
+    (map vector (storage-keys ls) (storage-values ls)))
+
+  ICounted
+  (-count  [ls] (.getCount ls))
+
+  IFn
+  (-invoke
+    ([ls k]
+      (-lookup ls k))
+    ([ls k not-found]
+      (-lookup ls k not-found))) 
+
+  ITransientCollection
+  (-persistent! [ls] (as-hash-map ls))
+  ;(-conj! [c v] nil)
+
+  ITransientAssociative
+  (-assoc! [ls k v]
+    (let [old-val (-lookup ls k)]
+      (.set ls (name k) (pr-str v))
+      (-notify-watches ls {k old-val} {k v})
+      ls))
+
+  ITransientMap
+  (-dissoc! [ls k]
+    (do
+      (.remove ls (name k))
+      ls))
+
+  ;IPrintable
+  ;(-pr-seq  [ls opts]
+   ; #_(let  [pr-pair  (fn  [keyval]  (pr-sequential pr-seq &quot;&quot; &quot; &quot; &quot;&quot; opts keyval))]
+   ;   (pr-sequential pr-pair &quot;{&quot; &quot;, &quot; &quot;}&quot; opts ls))
+   ; (-pr-seq (-persistent! ls) opts))
+  IPrintWithWriter
+  (-pr-writer [ls writer opts]
+    (let [pers-st (-persistent! ls)]
+     (-write writer (-persistent! ls)))))</pre></td></tr><tr><td class="docs"><p>Clear the storage</p>
+</td><td class="codes"><pre class="brush: clojure">(defn empty!
+  [ls]
+  (.clear ls))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
